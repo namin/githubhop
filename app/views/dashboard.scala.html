@@ -1,0 +1,11 @@
+@(user: github.User, repos: Seq[github.Repo], loginForm: Form[String])
+
+@main(loginForm) {
+
+Github user @user.login has the following repositories:
+<ul>
+@for(repo <- repos) {
+ <li>@repo.name</li>
+}
+</ul>
+}

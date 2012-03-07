@@ -1,0 +1,18 @@
+@(loginForm: Form[String])(content: Html)
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Github hop</title>
+        <script src="@routes.Assets.at("javascripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
+        <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+        <link rel="stylesheet" href="@routes.Assets.at("stylesheets/bootstrap.min.css")">
+    </head>
+    <body>
+
+      @login_widget(loginForm)
+      @content
+
+    </body>
+</html>
