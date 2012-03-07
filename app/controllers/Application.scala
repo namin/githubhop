@@ -16,13 +16,12 @@ object Application extends Controller {
     loginForm.bindFromRequest.fold(
       loginForm => Ok(views.html.login("", loginForm)),
       login =>
-        github.Users.authenticate(login) match {
-          case None => Ok(views.html.login("Not a valid Github username", loginForm.bindFromRequest))
-          case Some(user) => AsyncResult { handleTimeout {
-            github.Repos.of(user) map { repos =>
-              Ok(views.html.dashboard(user, repos, loginForm.bindFromRequest))
-            }}}})
-  }
+        AsyncResult { handleTimeout { github.Users.authenticate(login) map { userIfOk =>
+          userIfOk match {
+            case None => Ok(views.html.login("Not a valid Github username", loginForm.bindFromRequest))
+            case Some(user) => AsyncResult { handleTimeout { github.Repos.of(user) map { repos =>
+                Ok(views.html.dashboard(user, repos, loginForm.bindFromRequest))
+  }}}}}}})}
 
   def handleTimeout(promise: Promise[Result]) = {
     promise orTimeout("Timed out while waiting for response", 30, java.util.concurrent.TimeUnit.SECONDS) map { _.fold (

@@ -17,7 +17,7 @@ private[github] trait UsersBase { this : Github =>
     )
   }
 
-  def authenticate(login: String): Option[User] =
+  def authenticate(login: String) =
     find[User](baseUrl + "/users/" + login)
 
 }

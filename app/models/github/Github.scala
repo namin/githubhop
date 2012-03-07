@@ -28,17 +28,14 @@ trait Github {
 
   private def responsePromise(url : String) = WS.url(url).get()
 
-  def find[T](url: String)(implicit reads: Reads[T], manifest: Manifest[T]): Option[T] = {
+  def find[T](url: String)(implicit reads: Reads[T], manifest: Manifest[T]): Promise[Option[T]] = {
     val cacheKey = url
-    Cache.getAs[Option[T]](cacheKey) getOrElse {
-      responsePromise(url).await.fold(
-        _ => None,
-        response => {
-          val result = if (response.status == 404) None else Some(response.json.as[T])
-          Cache.set(cacheKey, result, calculateExpirationInSecs(response))
-          result
-        }
-      )
+    Cache.getAs[Option[T]](cacheKey) map { value => Akka.future(value) } getOrElse {
+      responsePromise(url).map { response =>
+        val result = if (response.status == 404) None else Some(response.json.as[T])
+        Cache.set(cacheKey, result, calculateExpirationInSecs(response))
+        result
+      }
     }
   }
 
