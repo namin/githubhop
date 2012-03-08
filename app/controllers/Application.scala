@@ -10,18 +10,34 @@ import models._
 
 object Application extends Controller {
 
+  val topN = 50
+  
   val loginForm = Form("login" -> nonEmptyText)
 
   def index = Action { implicit request =>
     loginForm.bindFromRequest.fold(
       loginForm => Ok(views.html.login("", loginForm)),
       login =>
-        AsyncResult { handleTimeout { github.Users.authenticate(login) map { userIfOk =>
-          userIfOk match {
-            case None => Ok(views.html.login("Not a valid Github username", loginForm.bindFromRequest))
-            case Some(user) => AsyncResult { handleTimeout { github.Repos.of(user) map { repos =>
-                Ok(views.html.dashboard(user, repos, loginForm.bindFromRequest))
-  }}}}}}})}
+        login.count(_ == '/') match {
+          case 0 => recommendUser(login, loginForm.bindFromRequest)
+          case 1 => recommendRepo(login, loginForm.bindFromRequest)
+          case _ => Ok(views.html.login("Not a valid Github username or repository", loginForm.bindFromRequest))
+        })
+  }
+  
+  def recommendUser(login: String, loginFormFromRequest: Form[String]) = {
+    github.Users.authenticate(login).value.get match {
+      case None => Ok(views.html.login("Not a valid Github username", loginFormFromRequest))
+      case Some(user) => Ok(views.html.users(user, github.Recommender.user.similar(topN)(user), loginFormFromRequest))
+    }
+  }
+  
+  def recommendRepo(login: String, loginFormFromRequest: Form[String]) = {
+    github.Repos.authenticate(login).value.get match {
+      case None => Ok(views.html.login("Not a valid Github repository (i.e. 'username/repository_name')", loginFormFromRequest))
+      case Some(repo) => Ok(views.html.repos(repo, github.Recommender.repo.similar(topN)(repo), loginFormFromRequest))
+    }
+  }  
 
   def handleTimeout(promise: Promise[Result]) = {
     promise orTimeout("Timed out while waiting for response", 30, java.util.concurrent.TimeUnit.SECONDS) map { _.fold (

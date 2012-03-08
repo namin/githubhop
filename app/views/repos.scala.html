@@ -1,0 +1,12 @@
+@(repo: github.Repo, repos: Seq[github.Repo], loginForm: Form[String])
+
+@main(loginForm) {
+
+If you like Github repo <em>@repo.name</em>, you might like Github repos
+<ul>
+@for(repo <- repos) {
+ <li><a href="http://github.com/@repo.owner.login/@repo.name">@repo.owner.login/@repo.name</a>
+     <span class="desc">@repo.description</span></li>
+}
+</ul>
+}

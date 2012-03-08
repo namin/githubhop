@@ -1,3 +1,11 @@
 #main {
   margin: 5em;
 }
+
+.desc {
+  color: grey;
+  font-size: smaller;
+}
+
+li { background: white; }
+li:nth-child(odd) { background: #eeeeee; }

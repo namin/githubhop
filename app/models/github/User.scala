@@ -5,7 +5,9 @@ import play.api.libs.concurrent.Promise
 
 import models._
 
-case class User(login: String, avatar_url: String)
+case class User(login: String, avatar_url: String) {
+  def id = login
+}
 
 object Users extends UsersBase with Github
 
@@ -19,5 +21,7 @@ private[github] trait UsersBase { this : Github =>
 
   def authenticate(login: String) =
     find[User](baseUrl + "/users/" + login)
-
+      
+  def watching(repo: Repo) =
+    get(baseUrl + "/repos/" + repo.owner.login + "/" + repo.name + "/watchers").promiseOf[Seq[User]]
 }

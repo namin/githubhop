@@ -8,7 +8,9 @@ import models._
 /**
  * Represents a Github Repo(sitory)
  */
-case class Repo(name: String, description: String, url: String, owner: User)
+case class Repo(name: String, description: String, homepage: String, owner: User, num_watchers: Int) {
+  def id = owner.id + "/" + name
+}
 
 /**
  * Convenience object used with the running Play application
@@ -24,12 +26,19 @@ private[github] trait ReposBase  { this : Github => //we use a self type here to
   implicit object RepoFormat extends Reads[Repo] { //only read, if writes and reads: Format
     def reads(json: JsValue): Repo = Repo(
       name = (json \ "name").as[String],
-      description = (json \ "description").as[String],
-      url = (json \ "url").as[String],
-      owner = (json \ "owner").as[User]
+      description = (json \ "description").asOpt[String].getOrElse(""),
+      homepage = (json \ "homepage").asOpt[String].getOrElse(""),
+      owner = (json \ "owner").as[User],
+      num_watchers = (json \ "watchers").as[Int]
     )
   }
+
+  def authenticate(id: String) =
+    find[Repo](baseUrl + "/repos/" + id)
+    
+  def watched(user: User) =
+    get(baseUrl + "/users/" + user.login + "/watched").promiseOf[Seq[Repo]]
   
-  def of(user : User) : Promise[Seq[Repo]] =
+  def of(user : User) =
     get(baseUrl + "/users/" + user.login + "/repos").paginatedPromiseOf[Repo]
 }

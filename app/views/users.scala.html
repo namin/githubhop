@@ -1,0 +1,11 @@
+@(user: github.User, users: Seq[github.User], loginForm: Form[String])
+
+@main(loginForm) {
+
+If you like Github user <em>@user.login</em>, you might like Github users
+<ul>
+@for(user <- users) {
+ <li>@user.login</li>
+}
+</ul>
+}

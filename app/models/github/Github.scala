@@ -16,9 +16,9 @@ trait Github {
       if (response.status == 404) return 10
       val remainingAllowed = response.header("X-RateLimit-Remaining").map { _.toInt }
       remainingAllowed match {
-        case Some(r) if r < 100 => 60 * 60 //We have only 100 requests left. Keep this value for an hour to let system recover
-        case Some(r) if r < 2000 => 5 * 60 //We have less than 2000 left. Scale back to 1 req/ 5 mins
-        case _ => 30 //We are looking good, keep the data quite fresh 
+        case Some(r) if r < 100 => 7 * 24 * 60 * 60
+        case Some(r) if r < 2000 => 24 * 60 * 60
+        case _ => 60
       }     
   }
 
@@ -26,7 +26,8 @@ trait Github {
   import play.api.cache._
   import play.api.Play.current //Current Play application
 
-  private def responsePromise(url : String) = WS.url(url).get()
+  private def responsePromise(url : String) =
+    WS.url(url).get()
 
   def find[T](url: String)(implicit reads: Reads[T], manifest: Manifest[T]): Promise[Option[T]] = {
     val cacheKey = url
@@ -47,6 +48,7 @@ trait Github {
     def promiseOf[T](implicit reads: Reads[T], manifest: Manifest[T]) : Promise[T] = {
       val cacheKey = url
       Cache.getAs[T](cacheKey) map { value => Akka.future(value) } getOrElse { //return a Promise with value if found in cache, or....
+        println("log: fetching " + cacheKey)
         responsePromise(url).map { response => //and map the result to the type you expect
           val result = response.json.as[T]
           Cache.set(cacheKey, result, calculateExpirationInSecs(response))  
