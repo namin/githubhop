@@ -10,7 +10,7 @@ import models._
 
 object Application extends Controller {
 
-  val topN = 50
+  val topN = 200
   
   val loginForm = Form("login" -> nonEmptyText)
 

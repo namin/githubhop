@@ -9,7 +9,7 @@ trait RecommenderSystem { self =>
   def similar(n: Int)(a: A): Seq[A] = {
     val b_s = a_to_b(a: A).map(b => (b.id,b)).toMap
     val a_s = b_s.values.flatMap(b => b_to_a(b).map(a => (a.id,a)).toMap).toMap
-    a_s.values.toSeq.sortBy(a => a_to_b(a).count(b => b_s.contains(b.id))).take(n)
+    a_s.values.toSeq.sortBy(a => -a_to_b(a).count(b => b_s.contains(b.id))).take(n)
   }
   
   def reverse = new RecommenderSystem {
