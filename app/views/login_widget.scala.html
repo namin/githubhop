@@ -4,5 +4,5 @@
 @import helper.twitterBootstrap._
 
 @form(action = routes.Application.index) {
-<p>@inputText(loginForm("login"), '_showConstraints -> false, '_label -> "", '_showErrors -> false, 'placeholder -> "Github Login")</p>
+<p>@inputText(loginForm("login"), '_showConstraints -> false, '_label -> "", '_showErrors -> false, 'placeholder -> "Github user or user/repo")</p>
 }
