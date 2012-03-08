@@ -2,10 +2,10 @@
 
 @main(loginForm) {
 
-If you like Github user <em>@user.login</em>, you might like Github users
+<div class="blurb">Repositories watched by user <em>@user.login</em> are also watched by</div>
 <ul>
 @for(user <- users) {
- <li>@user.login</li>
+ <li><a href="/@user.login">@user.login</a></li>
 }
 </ul>
 }

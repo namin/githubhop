@@ -1,5 +1,6 @@
 #main {
   margin: 5em;
+  text-align: center;
 }
 
 .desc {
@@ -9,3 +10,7 @@
 
 li { background: white; }
 li:nth-child(odd) { background: #eeeeee; }
+
+.blurb {
+
+}

@@ -2,10 +2,10 @@
 
 @main(loginForm) {
 
-If you like Github repo <em>@repo.name</em>, you might like Github repos
+<div class="blurb">Watchers of Github repo <em><a href="http://github.com/@repo.owner.login/@repo.name">@repo.owner.login/@repo.name</a></em> also watch:</div>
 <ul>
 @for(repo <- repos) {
- <li><a href="http://github.com/@repo.owner.login/@repo.name">@repo.owner.login/@repo.name</a>
+ <li><a href="/@repo.owner.login/@repo.name">@repo.owner.login/@repo.name</a>
      <span class="desc">@repo.description</span></li>
 }
 </ul>

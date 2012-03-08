@@ -25,6 +25,13 @@ object Application extends Controller {
         })
   }
   
+  def rest(user: String, repo: String) = Action {
+	repo match {
+	  case "" => recommendUser(user, loginForm.bind(Map("login" -> user)))
+	  case _ => val login = user+"/"+repo; recommendRepo(login, loginForm.bind(Map("login" -> login)))
+	}
+  }
+  
   def recommendUser(login: String, loginFormFromRequest: Form[String]) = {
     github.Users.authenticate(login).value.get match {
       case None => Ok(views.html.login("Not a valid Github username", loginFormFromRequest))
