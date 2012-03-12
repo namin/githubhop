@@ -1,1 +1,14 @@
-Hello, World!
+Github Hop
+==========
+
+A Play 2.0 application which suggests GitHub users / repositories to watch.
+
+See it live!
+http://githubhop.herokuapp.com
+
+Credits
+-------
+
+This application was built after a dry-run of the course
+Fast Track to Play by Fredrik Ekholdt
+http://www.typesafe.com/training/fasttracktoplay
