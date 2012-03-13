@@ -15,7 +15,12 @@ import play.api.libs.ws.Response
 import play.api.libs.concurrent.Promise
 import play.api.libs.concurrent.Akka
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 trait Github {
+  val logger = LoggerFactory.getLogger("application");
+
   val baseUrl = "https://api.github.com"
 
   lazy val timeParser = org.joda.time.format.ISODateTimeFormat.dateTimeNoMillis
@@ -56,7 +61,7 @@ trait Github {
     def promiseOf[T](implicit reads: Reads[T], manifest: Manifest[T]) : Promise[T] = {
       val cacheKey = url
       Cache.getAs[T](cacheKey) map { value => Akka.future(value) } getOrElse { //return a Promise with value if found in cache, or....
-        println("log: fetching " + cacheKey)
+        logger.debug("fetching " + cacheKey)
         responsePromise(url).map { response => //and map the result to the type you expect
           val result = response.json.as[T]
           Cache.set(cacheKey, result, calculateExpirationInSecs(response))  
