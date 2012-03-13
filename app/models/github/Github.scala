@@ -1,3 +1,11 @@
+/*
+ * Copyright 2012 Typesafe Inc.
+ *
+ * Unless otherwise agreed, training materials may only be used for
+ * educational and reference purposes by individual named participants
+ * in a training course offered by Typesafe or a Typesafe training partner.
+ * Unauthorized reproduction, redistribution, or use of this material is prohibited.
+ */
 package models.github
 
 import play.api.libs.json.Json._

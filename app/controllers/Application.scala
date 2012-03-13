@@ -1,3 +1,11 @@
+/*
+ * Copyright 2012 Typesafe Inc.
+ *
+ * Unless otherwise agreed, training materials may only be used for
+ * educational and reference purposes by individual named participants
+ * in a training course offered by Typesafe or a Typesafe training partner.
+ * Unauthorized reproduction, redistribution, or use of this material is prohibited.
+ */
 package controllers
 
 import play.api._
@@ -24,7 +32,9 @@ object Application extends Controller {
           case _ => Ok(views.html.login("Not a valid Github username or repository", loginForm.bindFromRequest))
         })
   }
-  
+
+  // TODO: requests to github should be async.
+
   def rest(user: String, repo: String) = Action {
 	repo match {
 	  case "" => recommendUser(user, loginForm.bind(Map("login" -> user)))
