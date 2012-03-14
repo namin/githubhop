@@ -13,6 +13,8 @@ import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
 import play.api.libs.concurrent.Promise
+import play.api.libs.concurrent.Akka
+import play.api.Play.current
 
 import models._
 
@@ -33,8 +35,6 @@ object Application extends Controller {
         })
   }
 
-  // TODO: requests to github should be async.
-
   def rest(user: String, repo: String) = Action {
 	repo match {
 	  case "" => recommendUser(user, loginForm.bind(Map("login" -> user)))
@@ -42,22 +42,22 @@ object Application extends Controller {
 	}
   }
   
-  def recommendUser(login: String, loginFormFromRequest: Form[String]) = {
-    github.Users.authenticate(login).value.get match {
-      case None => Ok(views.html.login("Not a valid Github username", loginFormFromRequest))
-      case Some(user) => Ok(views.html.users(user, github.Recommender.user.similar(topN)(user), loginFormFromRequest))
-    }
-  }
+  def recommendUser(login: String, loginFormFromRequest: Form[String]) = AsyncResult { handleTimeout { 
+    github.Users.authenticate(login).flatMap{_ match {
+      case None => Akka.future(Ok(views.html.login("Not a valid Github username", loginFormFromRequest)))
+      case Some(user) => github.Recommender.user.similar(topN)(user).map{ recs => Ok(views.html.users(user, recs, loginFormFromRequest)) }
+    }}
+  }}
   
-  def recommendRepo(login: String, loginFormFromRequest: Form[String]) = {
-    github.Repos.authenticate(login).value.get match {
-      case None => Ok(views.html.login("Not a valid Github repository (i.e. 'username/repository_name')", loginFormFromRequest))
-      case Some(repo) => Ok(views.html.repos(repo, github.Recommender.repo.similar(topN)(repo), loginFormFromRequest))
-    }
-  }  
+  def recommendRepo(login: String, loginFormFromRequest: Form[String]) = AsyncResult { handleTimeout {
+    github.Repos.authenticate(login).flatMap{_ match {
+      case None => Akka.future(Ok(views.html.login("Not a valid Github repository (i.e. 'username/repository_name')", loginFormFromRequest)))
+      case Some(repo) => github.Recommender.repo.similar(topN)(repo).map{ recs => Ok(views.html.repos(repo, recs, loginFormFromRequest)) }
+    }}
+  }}  
 
   def handleTimeout(promise: Promise[Result]) = {
-    promise orTimeout("Timed out while waiting for response", 30, java.util.concurrent.TimeUnit.SECONDS) map { _.fold (
+    promise orTimeout("Timed out while waiting for response", 120, java.util.concurrent.TimeUnit.SECONDS) map { _.fold (
       page => page,
       errorMsg => InternalServerError(views.html.error(errorMsg))  
     )}
